@@ -1,24 +1,26 @@
 import { CAPABILITIES, type Capability } from "@concierge/shared";
 
 /**
- * Logika pemilihan kapabilitas. Data registry-nya tinggal di `@concierge/shared`
- * (dipakai bersama web). Di sini: index by id + pemilih heuristik.
+ * Logika pemilihan kapabilitas. Data registry bawaan ada di `@concierge/shared`;
+ * agent custom buatan user dikirim per-permintaan dan digabung ke `pool`.
  */
-
-export const CAP_BY_ID: Record<string, Capability> = Object.fromEntries(
-  CAPABILITIES.map((c) => [c.id, c]),
-);
 
 /**
- * Pilih kapabilitas yang relevan untuk sebuah permintaan. Heuristik berbasis
- * kata kunci (dinamis — menangani permintaan apa pun). Fase 3: ganti dengan
- * reasoning Venice yang memilih + mengalokasikan budget.
+ * Pilih kapabilitas yang relevan untuk sebuah permintaan dari `pool` (bawaan +
+ * custom). Heuristik berbasis kata kunci (dinamis — menangani permintaan apa
+ * pun). Fase 3: ganti dengan reasoning Venice yang memilih + mengalokasi budget.
  */
-export function selectCapabilities(request: string): Capability[] {
+export function selectCapabilities(
+  request: string,
+  pool: Capability[] = CAPABILITIES,
+): Capability[] {
   const q = request.toLowerCase();
-  const scored = CAPABILITIES.map((c) => ({
+  const scored = pool.map((c) => ({
     c,
-    score: c.keywords.reduce((s, k) => (q.includes(k) ? s + 1 : s), 0),
+    score: c.keywords.reduce(
+      (s, k) => (k && q.includes(k.toLowerCase()) ? s + 1 : s),
+      0,
+    ),
   }));
 
   let picked = scored
@@ -26,9 +28,11 @@ export function selectCapabilities(request: string): Capability[] {
     .sort((a, b) => b.score - a.score)
     .map((x) => x.c);
 
-  // Tidak ada kecocokan → default aman: riset lalu tulis ringkasan.
+  // Tidak ada kecocokan → default aman: riset + tulis ringkasan, atau dua
+  // entri pertama pool bila pool custom-only.
   if (picked.length === 0) {
-    picked = CAPABILITIES.filter((c) => c.id === "research" || c.id === "writing");
+    picked = pool.filter((c) => c.id === "research" || c.id === "writing");
+    if (picked.length === 0) picked = pool.slice(0, 2);
   }
 
   return picked.slice(0, 4);

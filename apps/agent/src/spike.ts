@@ -1,8 +1,10 @@
-import type {
-  ActivityEvent,
-  DelegationNode,
-  DelegationProof,
-  SpikeResult,
+import {
+  type ActivityEvent,
+  type Capability,
+  type DelegationNode,
+  type DelegationProof,
+  type SpikeResult,
+  CAPABILITIES,
 } from "@concierge/shared";
 import { planRequest } from "./concierge/planner.js";
 import {
@@ -13,7 +15,6 @@ import {
 } from "./integrations/delegation.js";
 import { paidFetch } from "./integrations/x402.js";
 import { SELLER } from "./routes/seller.js";
-import { CAP_BY_ID } from "./capabilities.js";
 import { config } from "./config.js";
 
 /**
@@ -24,8 +25,18 @@ import { config } from "./config.js";
  * tanda tangan + hash delegasi; loop x402 (402 → bayar → 200) lawan mock seller.
  * DISIMULASI/GATED: settlement on-chain pembayaran & relay 1Shot (butuh dana).
  */
-export async function runSpike(request: string): Promise<SpikeResult> {
-  const plan = await planRequest(request);
+export async function runSpike(
+  request: string,
+  extraAgents: Capability[] = [],
+): Promise<SpikeResult> {
+  // Gabung katalog bawaan + agent custom user (custom tidak menimpa bawaan).
+  const seen = new Set(CAPABILITIES.map((c) => c.id));
+  const pool = [...CAPABILITIES, ...extraAgents.filter((c) => !seen.has(c.id))];
+  const byId: Record<string, Capability> = Object.fromEntries(
+    pool.map((c) => [c.id, c]),
+  );
+
+  const plan = await planRequest(request, pool);
   const sellerBase = `http://localhost:${config.port}`;
 
   const user = newParty();
@@ -53,7 +64,7 @@ export async function runSpike(request: string): Promise<SpikeResult> {
   let at = 0;
 
   for (const t of plan.subtasks) {
-    const capability = CAP_BY_ID[t.agent];
+    const capability = byId[t.agent];
     const specialist = newParty();
 
     // 2) Redelegasi: ven-AI → specialist (sub-cap, hanya menyempit).
@@ -80,9 +91,12 @@ export async function runSpike(request: string): Promise<SpikeResult> {
     });
 
     // 3) Specialist membayar layanan kapabilitasnya via x402, dalam sub-cap.
+    // `amount` = biaya kapabilitas (USDC), jadi agent custom pun membayar tarif
+    // yang dideklarasikannya.
     const product = capability?.product ?? "dataset";
+    const amount = toUsdc(t.estimatedCost).toString();
     const res = await paidFetch(
-      `${sellerBase}/seller/buy?product=${product}&q=${encodeURIComponent(request)}`,
+      `${sellerBase}/seller/buy?product=${encodeURIComponent(product)}&amount=${amount}&q=${encodeURIComponent(request)}`,
       specialist,
       { maxPayUsd: t.estimatedCost },
     );

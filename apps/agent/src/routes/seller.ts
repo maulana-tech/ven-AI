@@ -23,7 +23,9 @@ const PRICES: Record<string, string> = {
 
 export const sellerRoute = new Hono().get("/buy", (c) => {
   const product = c.req.query("product") ?? "dataset";
-  const max = PRICES[product] ?? "1000000";
+  // `amount` (USDC units) override harga — dipakai agar agent custom membayar
+  // tarif yang dideklarasikannya. Fallback ke harga produk bawaan.
+  const max = c.req.query("amount") ?? PRICES[product] ?? "1000000";
   const payment = c.req.header("x-payment");
 
   if (!payment) {

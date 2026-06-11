@@ -10,6 +10,7 @@ import { ResultPanel } from "@/components/ResultPanel";
 import { PromptBar } from "@/components/PromptBar";
 import { MOCK_BUDGET, MOCK_DELEGATION, MOCK_FEED } from "@/lib/mock";
 import { runSpike } from "@/lib/agent";
+import { getCustomAgents } from "@/lib/customAgents";
 
 /**
  * Dashboard. Tanpa hasil agent, menampilkan data mock (membuktikan arah visual).
@@ -29,7 +30,7 @@ export default function Page() {
     setLoading(true);
     setError(null);
     try {
-      setResult(await runSpike(request));
+      setResult(await runSpike(request, getCustomAgents()));
     } catch (e) {
       setError(e instanceof Error ? e.message : "request failed");
     } finally {
