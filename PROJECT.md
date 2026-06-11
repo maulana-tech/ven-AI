@@ -187,6 +187,8 @@ Alasan: (a) memenuhi syarat MetaMask via *Smart Accounts*, (b) menghindari kurun
 
 ## 11. Langkah berikutnya
 1. ~~Riset docs (Fase 0)~~ — selesai, lihat §10.
-2. Konfirmasi `relayer_getCapabilities` 1Shot untuk Base (risiko tersisa #1).
-3. Bangun "spike" tertipis (Fase 2): di Base Sepolia — direct delegation (7710) dgn caveat spending-limit+allowedTargets → 1 redelegation → 1 pembayaran x402 (mock seller) → relay via 1Shot → status webhook. Kalau jalan, sisanya tinggal lapisan.
-4. Lanjut Fase 3 (Venice planner + agents) di atas spike.
+2. ~~Spike Fase 2~~ — **selesai & terverifikasi.** `POST /spike` di agent: plan → delegasi root (user→ven-AI) → redelegasi ke specialist dgn caveat (scope `erc20TransferAmount` + `allowedTargets`) → loop x402 (mock seller). Konstruksi+caveat+redelegasi+tanda tangan+hash **nyata** (toolkit); settlement on-chain & relay 1Shot masih disimulasi/gated. Dashboard memanggilnya dan merender jejak nyata.
+3. **Sisa Fase 2 (butuh kredensial/dana):**
+   - Konfirmasi `relayer_getCapabilities` 1Shot untuk Base (set `ONESHOT_RELAYER_URL`).
+   - Tukar EOA spike → MetaMask Smart Account (`toMetaMaskSmartAccount`, 7702 via wallet) dan eksekusi settlement x402 + relay 1Shot di Base (testnet→mainnet).
+4. Fase 3: Venice nyata (planner + image) menggantikan stub; seller x402 nyata / endpoint Venice x402.

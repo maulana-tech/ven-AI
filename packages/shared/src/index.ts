@@ -7,4 +7,6 @@ export type {
   SubTask,
   TaskPlan,
   ActivityEvent,
+  DelegationProof,
+  SpikeResult,
 } from "./types.js";

@@ -52,6 +52,36 @@ export interface TaskPlan {
 }
 
 /**
+ * Bukti satu delegasi/redelegasi yang dibangun & ditandatangani (hash off-chain).
+ * Dipakai untuk menampilkan rantai delegasi sebagai bukti, bukan klaim.
+ */
+export interface DelegationProof {
+  /** label pihak pendelegasi (mis. "user", "ven-AI") */
+  from: string;
+  /** label penerima (mis. "ven-AI", "research") */
+  to: string;
+  /** hash delegasi (getDelegationHashOffchain) */
+  hash: string;
+  /** sub-plafon delegasi ini (USD) */
+  capUsd: number;
+}
+
+/**
+ * Hasil satu putaran vertical-slice (Fase 2 spike): rencana → delegasi +
+ * redelegasi (nyata) → pembayaran x402 → jejak. `settlement`/`relayed`
+ * menandai mana yang masih disimulasi vs sudah on-chain.
+ */
+export interface SpikeResult {
+  request: string;
+  budget: BudgetState;
+  delegation: DelegationNode[];
+  activity: ActivityEvent[];
+  proofs: DelegationProof[];
+  settlement: "simulated" | "onchain";
+  relayed: boolean;
+}
+
+/**
  * Satu entri di activity feed — sekaligus "witness block" (UI_GUIDE §6):
  * aksi agent + bukti transaksi on-chain.
  */

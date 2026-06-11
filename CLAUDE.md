@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Phase 1 (scaffold + visual foundation) in progress. Next.js app is up with the design system wired; on-chain spine (permissions, redelegation, x402, 1Shot) not built yet. See `PROJECT.md` for the product spec, `UI_GUIDE.md` for the design system, and the dev plan phases (Fase 0–6).
+Phase 2 vertical slice works. Fase 0 (de-risk) and Fase 1 (scaffold + visual) are done; the on-chain spine is built as a runnable spike. The agent's `POST /spike` runs: plan → root delegation (user→ven-AI) → **redelegation** to specialists with **caveats** (erc20 spending-limit scope + allowedTargets) → x402 payment loop against a local mock seller → returns a real `SpikeResult` (delegation hashes as proof + activity trace). The dashboard PromptBar calls it and renders the real trace. What is still simulated/gated (needs funds + keys): on-chain settlement of x402 payments and the 1Shot relay. See `PROJECT.md` §10–11 for findings and next steps.
 
 ## Monorepo layout
 
@@ -34,7 +34,7 @@ Env: each app has its own `.env.example` → copy to `.env.local`. `NEXT_PUBLIC_
 ## Stack & architecture
 
 - **`apps/web`** — Next.js 15 (App Router) + React 19 + Tailwind 3. Web3: RainbowKit + wagmi + viem (config in `src/lib/wagmi.ts`, chains = sepolia + mainnet placeholder — ⚠️ confirm 1Shot-supported chain in Fase 0; providers in `src/app/providers.tsx`).
-- **`apps/agent`** — Hono server. Modular by responsibility: `concierge/` (planner), `agents/` (research, media), `integrations/` (venice, x402, oneshot — all **stubs** marked by Fase), `routes/` (plan, webhook). Entry `src/index.ts`.
+- **`apps/agent`** — Hono server (CORS open for dev). Modular by responsibility: `concierge/` (planner), `agents/` (research, media), `integrations/` (`delegation` — real ERC-7710 build+caveats+redelegation+offchain-sign via `@metamask/delegation-toolkit`; `x402` — real 402→pay→retry loop, settlement simulated; `oneshot` — 1Shot `getCapabilities` gated by `ONESHOT_RELAYER_URL`, relay still stubbed; `venice` — stub), `routes/` (`plan`, `webhook`, `seller` = local mock x402 seller, `spike`), and `spike.ts` (the orchestrator). Endpoints: `GET /health`, `POST /plan`, `POST /spike`, `GET /spike/capabilities`, `GET /seller/data`, `POST /webhook/oneshot`. Entry `src/index.ts`. Target chain Base (config `CHAIN_ID`, default Base Sepolia 84532).
 - **`packages/shared`** — domain contract (`ActivityEvent`, `DelegationNode`, `TaskPlan`, `Grant`, …). Published as TS source; web consumes it via `transpilePackages` in `next.config.ts`. Change a type here → both sides update.
 - **Components are split, one concern per file** under `apps/web/src/components/` (Header, BudgetMeter, DelegationChain, ActivityFeed, ResultPanel, PromptBar, plus `ui/` primitives). `page.tsx` is composition only. Don't collapse them back into one file.
 - **Design system source of truth (keep in sync):** `apps/web/tailwind.config.ts` holds color tokens (warm-paper light theme + bronze accent — deliberately NOT shadcn zinc default); `UI_GUIDE.md` holds the rationale + anti-slop rules. Read `UI_GUIDE.md` before any visual change. **Hard rules: no color gradients, no emoji/emote glyphs** — marks are CSS-drawn (see `components/Logo.tsx`).
