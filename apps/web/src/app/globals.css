@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans;
+  }
+
+  /* Angka selalu tabular biar rata kolom (lihat UI_GUIDE §3) */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* RainbowKit pakai font kita */
+  [data-rk] {
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  }
+}

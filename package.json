@@ -1,0 +1,14 @@
+{
+  "name": "concierge-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "dev:web": "pnpm --filter @concierge/web dev",
+    "dev:agent": "pnpm --filter @concierge/agent dev",
+    "build": "pnpm --filter @concierge/web build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint"
+  }
+}
