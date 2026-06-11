@@ -1,16 +1,17 @@
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { mainnet, sepolia } from "wagmi/chains";
+import { base, baseSepolia } from "wagmi/chains";
 
 /**
  * Konfigurasi wallet (RainbowKit + wagmi).
  *
- * ⚠️ Fase 0 TODO: kunci chain final setelah verifikasi 1Shot relayer
- * mendukung testnet apa (lihat PROJECT.md §10). Sementara: sepolia (dev) +
- * mainnet (placeholder). iNMerge pakai Mantle — kandidat kuat.
+ * Keputusan Fase 0 (lihat PROJECT.md §10): target = Base, jalur izin = ERC-7710
+ * Smart Account delegation. Venice x402 (USDC/Base) + 1Shot hidup di Base, jadi
+ * single-chain. Dev di Base Sepolia; demo "real" di Base mainnet.
+ * ⚠️ Konfirmasi 1Shot `relayer_getCapabilities` untuk Base sebelum Fase 2.
  */
 export const wagmiConfig = getDefaultConfig({
-  appName: "Concierge",
+  appName: "ven-AI",
   projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID ?? "PLACEHOLDER_PROJECT_ID",
-  chains: [sepolia, mainnet],
+  chains: [baseSepolia, base],
   ssr: true,
 });

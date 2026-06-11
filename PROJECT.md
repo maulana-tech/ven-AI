@@ -157,19 +157,36 @@ Tiap track dinilai terpisah, jadi satu project bisa di-submit ke beberapa track.
 
 ---
 
-## 10. Pertanyaan terbuka (perlu jawaban sebelum/saat build)
+## 10. Temuan Fase 0 (riset docs — sudah dijawab)
 
-1. Apakah satu submission boleh masuk >1 main track? (menentukan framing primary)
-2. Chain & environment dev (testnet vs mainnet) yang didukung 1Shot relayer?
-3. Apakah Venice punya endpoint x402-native, atau pembayaran x402 untuk seller pihak ketiga / mock?
-4. Bentuk caveat yang didukung redelegation di Delegation Toolkit (spending limit, target whitelist, expiry)?
-5. Siapa yang kena 7702 upgrade — akun user, akun agent, atau keduanya?
-6. Tim solo atau ada anggota? (menentukan ambisi scope)
+Hasil riset docs resmi MetaMask / 1Shot / Venice. Confidence dari sumber yang dibaca.
+
+- **Redelegation + caveat granular — DIDUKUNG (risiko #1 hilang).** Redelegation lewat argumen `parentDelegation` di `createDelegation()`; child delegation `from` = delegate sebelumnya, dan **hanya bisa menyempit** wewenang (caveat menumpuk, tak bisa dihapus). Enforcer yang ada:
+  - Spending limit: `nativeTokenTransferAmount` (`NativeTokenTransferAmountEnforcer`), `erc20TransferAmount` (`ERC20TransferAmountEnforcer`), plus varian periodic/streaming.
+  - Whitelist: `allowedTargets` (`AllowedTargetsEnforcer`), `allowedMethods`, `allowedCalldata`.
+  - Dipasang via `createCaveatBuilder()` → `.addCaveat("allowedTargets", [...])`; berlaku juga pada redelegation.
+  - ⚠️ Verifikasi ejaan string builder ke types `@metamask/delegation-toolkit` saat coding.
+  - **Fallback** kalau redelegation rewel: 1 *direct delegation* per agent dari EOA root (paling terdokumentasi); escape hatch terakhir: custom caveat enforcer.
+- **7702 upgrade kena EOA USER.** Di flow browser ERC-7715, **wallet** yang melakukan 7702 — JANGAN tambahkan `authorizationList` ke payload relayer. Agent = delegate/redeemer, bukan akun yang di-upgrade.
+- **Venice = x402-native + OpenAI-compatible.** Base URL `https://api.venice.ai/api/v1`; chat `POST /chat/completions`; image `POST /image/generate`. x402: bayar per-request **USDC di Base** (header SIWX → `POST /x402/top-up` balas 402 → retry dgn `X-402-Payment`). Model id ambil dari `GET /api/v1/models` (jangan hardcode).
+- **ERC-7715 grant** = RPC `wallet_grantPermissions`; tipe izin: `native-token-stream`, `native-token-periodic`, `erc20-token-stream`, `erc20-token-periodic`, `erc20-token-allowance`, `erc20-revocation`. **Snaps ERC-7715 hanya jalan di Sepolia.**
+- **Chain:** Toolkit support banyak EVM (Base, Optimism, Arbitrum, Linea, Polygon + testnet Sepolia/Base Sepolia). 1Shot: **jangan hardcode — panggil `relayer_getCapabilities`** (mainnet terlihat: Ethereum/Optimism/Polygon/Base/Arbitrum/Celo; gas token: USDC/USDT/USDG/MUSD). Mantle TIDAK terkonfirmasi.
+
+### Keputusan arsitektur (dari temuan)
+
+**Target chain = Base; jalur izin = ERC-7710 Smart Account delegation (BUKAN ERC-7715).**
+Alasan: (a) memenuhi syarat MetaMask via *Smart Accounts*, (b) menghindari kurungan Sepolia-only milik 7715, (c) menyatukan chain — Venice x402 (USDC/Base) dan 1Shot (Base) hidup di tempat yang sama, (d) main track kita (x402+7710, Best Agent, A2A) tidak butuh 7715. Dev pakai **Base Sepolia** (Venice x402 di-mock di testnet); demo "real" di **Base mainnet** dengan USDC kecil (1Shot memang relayer mainnet).
+
+### Risiko tersisa (verifikasi live)
+1. **1Shot coverage di Base** — konfirmasi via `relayer_getCapabilities` sebelum commit (paling mungkin bikin demo patah).
+2. **Pendanaan USDC** kecil di Base untuk x402 + gas.
+3. **Ejaan enforcer & path image Venice** — cek ke types/SDK live (murah).
+4. (Non-teknis) Boleh >1 main track? & solo/tim — tanya panitia / tentukan scope.
 
 ---
 
 ## 11. Langkah berikutnya
-1. Jawab pertanyaan §10 (terutama 1–4) dari docs resmi — aku bisa bantu riset.
-2. Kunci tech stack final (§7).
-3. Scaffold project + `git init`, lalu update `CLAUDE.md` dengan command build/test nyata.
-4. Bangun "spike" tertipis dulu: grant permission → 1 redelegation → 1 pembayaran x402 via 1Shot. Kalau ini jalan, sisanya tinggal lapisan.
+1. ~~Riset docs (Fase 0)~~ — selesai, lihat §10.
+2. Konfirmasi `relayer_getCapabilities` 1Shot untuk Base (risiko tersisa #1).
+3. Bangun "spike" tertipis (Fase 2): di Base Sepolia — direct delegation (7710) dgn caveat spending-limit+allowedTargets → 1 redelegation → 1 pembayaran x402 (mock seller) → relay via 1Shot → status webhook. Kalau jalan, sisanya tinggal lapisan.
+4. Lanjut Fase 3 (Venice planner + agents) di atas spike.
