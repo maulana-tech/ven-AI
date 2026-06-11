@@ -1,41 +1,29 @@
-"use client";
-
-import { Header } from "@/components/Header";
-import { BudgetMeter } from "@/components/BudgetMeter";
-import { DelegationChain } from "@/components/DelegationChain";
-import { ActivityFeed } from "@/components/ActivityFeed";
-import { ResultPanel } from "@/components/ResultPanel";
-import { PromptBar } from "@/components/PromptBar";
-import { MOCK_BUDGET, MOCK_DELEGATION, MOCK_FEED } from "@/lib/mock";
+import { SmoothScroll } from "@/components/landing/SmoothScroll";
+import { LandingNav } from "@/components/landing/LandingNav";
+import { Hero } from "@/components/landing/Hero";
+import { Problem } from "@/components/landing/Problem";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { Features } from "@/components/landing/Features";
+import { Stack } from "@/components/landing/Stack";
+import { CTA } from "@/components/landing/CTA";
+import { Footer } from "@/components/Footer";
 
 /**
- * Dashboard shell (UI_GUIDE §7) — hanya komposisi. Logika & data nyata masuk
- * di Fase 3–4. Data sekarang dari `lib/mock` (bentuknya sudah sesuai kontrak).
+ * Landing page. Smooth scroll via Lenis; reveal halus per section.
+ * Mengikuti UI_GUIDE: warm paper, aksen bronze, CornerFrame, tanpa
+ * gradient/emoji. Dashboard ada di /app.
  */
-export default function Page() {
+export default function LandingPage() {
   return (
-    <main className="mx-auto min-h-screen max-w-7xl px-4 py-6">
-      <Header />
-
-      <div className="mb-6">
-        <BudgetMeter
-          spent={MOCK_BUDGET.spent}
-          cap={MOCK_BUDGET.cap}
-          onRevoke={() => {}}
-        />
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <div className="space-y-6">
-          <DelegationChain nodes={MOCK_DELEGATION} />
-          <ActivityFeed events={MOCK_FEED} />
-        </div>
-        <ResultPanel />
-      </div>
-
-      <div className="mt-6">
-        <PromptBar />
-      </div>
-    </main>
+    <SmoothScroll>
+      <LandingNav />
+      <Hero />
+      <Problem />
+      <HowItWorks />
+      <Features />
+      <Stack />
+      <CTA />
+      <Footer />
+    </SmoothScroll>
   );
 }
