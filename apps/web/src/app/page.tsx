@@ -4,7 +4,6 @@ import { Hero } from "@/components/landing/Hero";
 import { Problem } from "@/components/landing/Problem";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Features } from "@/components/landing/Features";
-import { Stack } from "@/components/landing/Stack";
 import { CTA } from "@/components/landing/CTA";
 import { Footer } from "@/components/Footer";
 
@@ -21,7 +20,6 @@ export default function LandingPage() {
       <Problem />
       <HowItWorks />
       <Features />
-      <Stack />
       <CTA />
       <Footer />
     </SmoothScroll>

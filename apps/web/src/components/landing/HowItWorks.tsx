@@ -25,30 +25,35 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <section id="how" className="mx-auto max-w-6xl px-4 py-24">
-      <Reveal>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-ink-faint">
-          How it works
-        </p>
-        <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight">
-          You give the task and the budget once. The rest runs on its own.
-        </h2>
-      </Reveal>
+    <section
+      id="how"
+      className="flex min-h-screen flex-col justify-center px-4 py-24"
+    >
+      <div className="mx-auto w-full max-w-6xl">
+        <Reveal>
+          <p className="text-[11px] font-medium uppercase tracking-wide text-ink-faint">
+            How it works
+          </p>
+          <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
+            You give the task and the budget once. The rest runs on its own.
+          </h2>
+        </Reveal>
 
-      <div className="mt-12 grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2">
-        {STEPS.map((s, i) => (
-          <Reveal key={s.n} delay={i * 0.05} className="bg-paper">
-            <div className="h-full p-7">
-              <div className="font-mono text-sm tnum text-gold">{s.n}</div>
-              <h3 className="mt-3 text-lg font-semibold tracking-tight">
-                {s.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-muted">
-                {s.body}
-              </p>
-            </div>
-          </Reveal>
-        ))}
+        <div className="mt-14 grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2">
+          {STEPS.map((s, i) => (
+            <Reveal key={s.n} delay={i * 0.05} className="bg-paper">
+              <div className="h-full p-8">
+                <div className="font-mono text-sm tnum text-gold">{s.n}</div>
+                <h3 className="mt-3 text-lg font-semibold tracking-tight">
+                  {s.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+                  {s.body}
+                </p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   );

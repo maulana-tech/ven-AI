@@ -29,21 +29,24 @@ const FEATURES = [
 
 export function Features() {
   return (
-    <section id="features" className="border-t border-line bg-panel">
-      <div className="mx-auto max-w-6xl px-4 py-24">
+    <section
+      id="features"
+      className="flex min-h-screen flex-col justify-center border-t border-line bg-panel px-4 py-24"
+    >
+      <div className="mx-auto w-full max-w-6xl">
         <Reveal>
           <p className="text-[11px] font-medium uppercase tracking-wide text-ink-faint">
             Features
           </p>
-          <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight">
+          <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
             Built so an AI can hold money safely.
           </h2>
         </Reveal>
 
-        <div className="mt-12 grid gap-px overflow-hidden border border-line bg-line md:grid-cols-3">
+        <div className="mt-14 grid gap-px overflow-hidden border border-line bg-line md:grid-cols-3">
           {FEATURES.map((f, i) => (
             <Reveal key={f.title} delay={(i % 3) * 0.05} className="bg-panel">
-              <div className="h-full p-7">
+              <div className="h-full p-8">
                 <h3 className="text-base font-semibold tracking-tight">
                   {f.title}
                 </h3>
