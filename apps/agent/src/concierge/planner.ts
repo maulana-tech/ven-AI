@@ -1,5 +1,4 @@
 import { type Capability, type TaskPlan, CAPABILITIES } from "../shared.js";
-import { veniceChat } from "../integrations/venice.js";
 import { selectCapabilities } from "../capabilities.js";
 
 /**
@@ -14,9 +13,6 @@ export async function planRequest(
   request: string,
   pool: Capability[] = CAPABILITIES,
 ): Promise<TaskPlan> {
-  // Jejak reasoning (stub sampai Venice nyata dipasang di Fase 3).
-  await veniceChat(`Decompose this request into capabilities: ${request}`);
-
   const caps = selectCapabilities(request, pool);
 
   return {
