@@ -67,7 +67,7 @@ export async function paidFetch<T = unknown>(
   const txHash = keccak256(
     toHex(`${payer.address}:${accept.resource}:${accept.maxAmountRequired}`),
   );
-  const payment = Buffer.from(
+  const payment = btoa(
     JSON.stringify({
       scheme: accept.scheme,
       network: accept.network,
@@ -77,7 +77,7 @@ export async function paidFetch<T = unknown>(
       amount: accept.maxAmountRequired,
       settlement: txHash,
     }),
-  ).toString("base64");
+  );
 
   const second = await fetch(url, { headers: { "X-PAYMENT": payment } });
   if (!second.ok) throw new Error(`retry after payment responded ${second.status}`);
