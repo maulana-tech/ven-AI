@@ -11,7 +11,7 @@ export const webhookRoute = new Hono().post("/oneshot", async (c) => {
   const signature = c.req.header("x-oneshot-signature") ?? "";
   const raw = await c.req.text();
 
-  if (!verifyWebhook(raw, signature)) {
+  if (!(await verifyWebhook(raw, signature))) {
     return c.json({ error: "signature tidak valid" }, 401);
   }
 
